@@ -13,10 +13,10 @@ function GameGrid () {
 
   const getGrid = () => grid;
 
-  const makeMove = (square, player) => {
-    const availableSquares = grid.filter((square) => square.getMark() === 0).map((square) => square);
+  const makeMove = (row, col, player) => {
+    const square = grid[row][col];
 
-    if (!availableSquares.includes(square)) return;
+    if (square.getMark() !== 0) return;
 
     square.addMark(player);
   }
@@ -63,21 +63,27 @@ function GameController(
 
   const switchTurns = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
-  }
+  };
   const getActivePlayer = () => activePlayer;
 
   const printNextTurn = () => {
-    grid.getGrid();
+    grid.printGrid();
     console.log(`${getActivePlayer().name}'s turn`);
   };
 
-  const playRound = (square) => {
+  const playRound = (row, col) => {
     console.log(
       `${getActivePlayer().name} is making their move...`
     );
-    grid.makeMove(square, getActivePlayer.mark());
-  }
+    grid.makeMove(row, col, getActivePlayer().mark);
 
+    switchTurns();
+    printNextTurn();
+  };
+
+  printNextTurn();
+
+  return { playRound, getActivePlayer };
 }
 
-const gameGrid = GameGrid();
+const game = GameController();
