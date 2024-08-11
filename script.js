@@ -39,7 +39,9 @@ function GameGrid () {
       {row: 1, col: 1} // Square to the bottom-right diagonal
     ]
 
-    const values = {};
+    const values = {
+      mark: grid[row][col].getMark()
+    };
 
     for (const {row: r, col: c} of directions) {
       const newRow = row + r;
@@ -100,10 +102,6 @@ function GameController(
     console.log(`${getActivePlayer().name}'s turn`);
   };
 
-  const checkWin = (row, col) => {
-    const surroundingValues = grid.checkSurroundingValues(row, col);
-  }
-
   const playRound = (row, col) => {
     let isValidMove = false;
 
@@ -114,8 +112,20 @@ function GameController(
     if(!isValidMove) {
       console.log('Invalid move. Try again')
     } else {
-      const surroundingValues = grid.checkSurroundingValues(row, col);
-      console.log('Values around the move: ', surroundingValues);
+      const valuesGrid = grid.checkSurroundingValues(row, col);
+      const currentMark = valuesGrid.mark;
+      const {mark, ...surroundingValues} = valuesGrid;
+      const surroundingValuesArray = Object.values(surroundingValues).filter(mark => mark !== null);
+      console.log('Values around the move: ', surroundingValuesArray);
+
+      const isMatching = surroundingValuesArray.some(mark => mark === currentMark);
+
+      if (isMatching) {
+        console.log('One of the surrounding values matches');
+      } else {
+        console.log('None of the surrounding values match');
+      }
+
       switchTurns();
       printNextTurn();
     }
