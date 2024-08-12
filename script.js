@@ -6,17 +6,7 @@ let isWon = false;
 let isFull = false;
 
 function GameGrid () {
-  const rows = 3;
-  const cols = 3;
-  const grid = [];
-
-  for (let i = 0; i < rows; i++) {
-    grid[i] = [];
-
-    for (let j = 0; j < cols; j++) {
-      grid[i].push(Square());
-    }
-  }
+  const grid = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => Square()));
 
   const getGrid = () => grid;
 
@@ -52,14 +42,14 @@ function GameGrid () {
 
   const checkSurroundingValues = (row, col) => {
     const directions  = [
-      {name: 'above', orientation: 'vertical', row: -1, col: 0}, // Square above
-      {name: 'below', orientation: 'vertical', row: 1, col: 0}, // Square below
-      {name: 'left', orientation: 'horizontal', row: 0, col: -1}, // Square to the left
-      {name: 'right', orientation: 'horizontal', row: 0, col: 1}, // Square to the right
-      {name: 'top-left', orientation: 'downwards-diagonal', row: -1, col: -1}, // Square to the top-left diagonal
-      {name: 'top-right', orientation: 'upwards-diagonal', row: -1, col: 1}, // Square to the top-right diagonal
-      {name: 'bottom-left', orientation: 'upwards-diagonal', row: 1, col: -1}, // Square to the bottom-left diagonal
-      {name: 'bottom-right', orientation: 'downwards-diagonal', row: 1, col: 1} // Square to the bottom-right diagonal
+      {name: 'above', orientation: 'vertical', row: -1, col: 0}, 
+      {name: 'below', orientation: 'vertical', row: 1, col: 0},
+      {name: 'left', orientation: 'horizontal', row: 0, col: -1},
+      {name: 'right', orientation: 'horizontal', row: 0, col: 1},
+      {name: 'top-left', orientation: 'downwards-diagonal', row: -1, col: -1},
+      {name: 'top-right', orientation: 'upwards-diagonal', row: -1, col: 1},
+      {name: 'bottom-left', orientation: 'upwards-diagonal', row: 1, col: -1},
+      {name: 'bottom-right', orientation: 'downwards-diagonal', row: 1, col: 1}
     ]
 
     const values = {
@@ -73,7 +63,7 @@ function GameGrid () {
       let newCol = col + c;
       values.directions[name] = [];
 
-      while (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+      while (newRow >= 0 && newRow < 3 && newCol >= 0 && newCol < 3) {
         values.directions[name].push({orientationClass: orientation, value: grid[newRow][newCol].getMark()});
         newRow += r;
         newCol += c;
@@ -121,6 +111,7 @@ function GameController(
   const switchTurns = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
+  
   const getActivePlayer = () => activePlayer;
 
   const printNextTurn = () => {
@@ -133,7 +124,6 @@ function GameController(
       alert('It\'s a tie');
       return;
     }
-    // console.log(`${getActivePlayer().name}'s turn`);
   };
 
   const checkWin = (row, col) => {
@@ -172,8 +162,6 @@ function GameController(
 
     let isValidMove = false;
 
-    // console.log(`${getActivePlayer().name} is making their move...`);
-
     isValidMove = grid.makeMove(row, col, getActivePlayer().mark);
 
     if(!isValidMove) {
@@ -190,25 +178,14 @@ function GameController(
       printNextTurn();
     }
   };
-
-
-  const handlePlay = (row, col) => {
-    return function(event) {
-      game.playRound(row, col);
-    }
-  }
   
-  
-  const startGame = () => {
-      gameTiles.forEach((tile) => {
-        const computedStyle = window.getComputedStyle(tile);
-        const tileRow = computedStyle.gridRow - 1;
-        const tileColumn = computedStyle.gridColumn - 1;
-        tile.addEventListener('click', handlePlay(tileRow, tileColumn));
-      });
-    }
+  gameTiles.forEach((tile) => {
+    const computedStyle = window.getComputedStyle(tile);
+    const tileRow = computedStyle.gridRow - 1;
+    const tileColumn = computedStyle.gridColumn - 1;
+    tile.addEventListener('click', () => game.playRound(tileRow, tileColumn));
+  });
 
-  startGame();
   printNextTurn();
 
   return { playRound, getActivePlayer };
