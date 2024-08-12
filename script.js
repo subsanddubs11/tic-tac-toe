@@ -66,7 +66,7 @@ function GameGrid () {
       }
     }
 
-    const reset = () => {
+    const resetBoard = () => {
       gameTiles.forEach((tile) => {
         tile.innerHTML = '';
       })
@@ -74,7 +74,7 @@ function GameGrid () {
       printGrid();
     }
 
-    resetBtn.addEventListener('click', reset);
+    resetBtn.addEventListener('click', resetBoard);
 
     return values;
   }
@@ -106,6 +106,11 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
     grid.printGrid();
   };
 
+  const isBoardFull = () => {
+    const gridWithSquareMarks = grid.getGrid().flat().map(square => square.getMark());
+    return gridWithSquareMarks.every(mark => mark !== 0);
+  }
+
   const checkWin = (row, col) => {
     const gridObject = grid.checkSurroundingValues(row, col);
     const mark = gridObject.mark;
@@ -116,7 +121,7 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
 
     if (filteredDirections.some((value, index) => filteredDirections.indexOf(value) !== filteredDirections.lastIndexOf(value))) {
       return true;
-    } else if (isTruthy) {
+    } else if (isBoardFull()) {
       winnerMessage.innerHTML = `<h2>It\'s a tie :(</h2>`;
       disableGame();
       grid.printGrid();
@@ -165,13 +170,13 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
     })
   }
 
-  const reset = () => {
+  const resetGame = () => {
     startGame();
     winnerMessage.innerHTML = '';
     activePlayer = players[0];
   }
 
-  resetBtn.addEventListener('click', reset);
+  resetBtn.addEventListener('click', resetGame);
 
   startGame();
   printNextTurn();
