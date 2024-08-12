@@ -2,7 +2,6 @@ const winnerMessage = document.getElementById('winner-message');
 const gameBoard = document.getElementById('game-board');
 const gameTiles = document.querySelectorAll('.tile');
 
-let isWon = false;
 let isFull = false;
 
 function GameGrid () {
@@ -78,50 +77,29 @@ function GameGrid () {
 
 function Square () {
   let mark = 0;
-
-  const addMark = (player) => {
-    mark = player;
-  }
-
+  const addMark = (player) => mark = player;
   const getMark = () => mark; 
-
   return { addMark, getMark };
 } 
 
-function GameController(
-  playerOneName = 'Player One',
-  playerTwoName = 'Player Two'
-) {
-
+function GameController(playerOneName = 'Player One', playerTwoName = 'Player Two') {
   const grid = GameGrid();
-
   const players = [
-    {
-      name: playerOneName,
-      mark: 'X'
-    },
-    {
-      name: playerTwoName,
-      mark: 'O'
-    }
+    { name: playerOneName, mark: 'X' },
+    { name: playerTwoName, mark: 'O' }
   ];
 
   let activePlayer = players[0];
 
-  const switchTurns = () => {
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
-  };
-  
+  const switchTurns = () => activePlayer = activePlayer === players[0] ? players[1] : players[0];
+
   const getActivePlayer = () => activePlayer;
 
   const printNextTurn = () => {
-    if (isWon) {
-      return;
-    }
-
     grid.printGrid();
     if (isFull) {
       alert('It\'s a tie');
+      disableGame();
       return;
     }
   };
@@ -149,19 +127,14 @@ function GameController(
           return true;
         }
       }
-    }
+    } 
     
     return false;
   }
 
   const playRound = (row, col) => {
 
-    if (isWon || isFull) {
-      return;
-    }
-
     let isValidMove = false;
-
     isValidMove = grid.makeMove(row, col, getActivePlayer().mark);
 
     if(!isValidMove) {
@@ -169,7 +142,7 @@ function GameController(
     } else {
       if (checkWin(row, col)) {
         alert(`${getActivePlayer().name} won the game!`);
-        isWon = true;
+        disableGame();
         grid.printGrid();
         return;
       } 
@@ -179,13 +152,26 @@ function GameController(
     }
   };
   
-  gameTiles.forEach((tile) => {
-    const computedStyle = window.getComputedStyle(tile);
+  const handleClick = (event) => {
+    const computedStyle = window.getComputedStyle(event.target);
     const tileRow = computedStyle.gridRow - 1;
     const tileColumn = computedStyle.gridColumn - 1;
-    tile.addEventListener('click', () => game.playRound(tileRow, tileColumn));
-  });
+    return game.playRound(tileRow, tileColumn);
+  }
 
+  const startGame = () => {
+    gameTiles.forEach((tile) => {
+      tile.addEventListener('click', handleClick);
+    });
+  }
+
+  const disableGame = () => {
+    gameTiles.forEach((tile) => {
+      tile.removeEventListener('click', handleClick);
+    })
+  }
+
+  startGame();
   printNextTurn();
 
   return { playRound, getActivePlayer };
