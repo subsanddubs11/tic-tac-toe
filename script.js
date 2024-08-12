@@ -1,8 +1,7 @@
 const winnerMessage = document.getElementById('winner-message');
 const gameBoard = document.getElementById('game-board');
 const gameTiles = document.querySelectorAll('.tile');
-
-let isFull = false;
+const resetBtn = document.getElementById('reset-btn');
 
 function GameGrid () {
   const grid = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => Square()));
@@ -10,7 +9,6 @@ function GameGrid () {
   const getGrid = () => grid;
 
   const makeMove = (row, col, player) => {
-    console.log(row, col);
     const square = grid[row][col];
 
     if (square.getMark() !== 0) return false;
@@ -21,9 +19,10 @@ function GameGrid () {
   }
 
   const printGrid = () => {
-    const gridWithSquareMarks = grid.map((row) => row.map((square) => square.getMark()));
     
     gameTiles.forEach((tile) => {
+      const gridWithSquareMarks = grid.map((row) => row.map((square) => square.getMark()));
+
       const computedStyle = window.getComputedStyle(tile);
       const tileRow = parseInt(computedStyle.gridRow) - 1;
       const tileColumn = parseInt(computedStyle.gridColumn) - 1;
@@ -36,8 +35,6 @@ function GameGrid () {
         tile.innerHTML = `<p class="mark">${tileMark}</p>`
       }
     })
-
-    isFull = gridWithSquareMarks.every((row) => row.every((square) => Boolean(square)));
   }
 
   const checkSurroundingValues = (row, col) => {
@@ -68,8 +65,17 @@ function GameGrid () {
         newCol += c;
       }
     }
-    
-    console.log(values);
+
+    const reset = () => {
+      gameTiles.forEach((tile) => {
+        tile.innerHTML = '';
+      })
+      grid.forEach((row) => row.forEach((square) => square.addMark(0)));
+      
+    }
+
+    resetBtn.addEventListener('click', reset);
+
     return values;
   }
 
@@ -159,10 +165,16 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
     })
   }
 
+  const reset = () => {
+    startGame();
+  }
+
+  resetBtn.addEventListener('click', reset);
+
   startGame();
   printNextTurn();
 
-  return { playRound, getActivePlayer };
+  return { playRound, getActivePlayer, startGame };
 }
 
 const game = GameController();
