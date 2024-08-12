@@ -1,5 +1,9 @@
 const winnerMessage = document.getElementById('winner-message');
 const gameBoard = document.getElementById('game-board');
+const gameTiles = document.querySelectorAll('.tile');
+
+let isStarted = false;
+let isWon = false;
 
 function GameGrid () {
   const rows = 3;
@@ -22,12 +26,29 @@ function GameGrid () {
     if (square.getMark() !== 0) return false;
 
     square.addMark(player);
+
     return true;
   }
 
   const printGrid = () => {
     const gridWithSquareMarks = grid.map((row) => row.map((square) => square.getMark()));
-    console.log(gridWithSquareMarks);
+    
+    gameTiles.forEach((tile) => {
+      const computedStyle = window.getComputedStyle(tile);
+      const tileRow = computedStyle.gridRow - 1;
+      const tileColumn = computedStyle.gridColumn - 1;
+      
+      const tileMark = gridWithSquareMarks[tileRow][tileColumn];
+
+      if (!tileMark) {
+        return;
+      } else {
+        tile.innerHTML = `<p class="mark">${tileMark}</p>`
+      }
+    })
+
+    const isFull = gridWithSquareMarks.every((row) => row.every((square) => Boolean(square)));
+    return isFull ? true : false;
   }
 
   const checkSurroundingValues = (row, col) => {
@@ -104,8 +125,13 @@ function GameController(
   const getActivePlayer = () => activePlayer;
 
   const printNextTurn = () => {
-    grid.printGrid();
-    console.log(`${getActivePlayer().name}'s turn`);
+    let isFull = grid.printGrid();
+    if(isFull) {
+      alert('It\'s a tie :(');
+      disableGame();
+      return;
+    };
+    // console.log(`${getActivePlayer().name}'s turn`);
   };
 
   const checkWin = (row, col) => {
@@ -136,18 +162,25 @@ function GameController(
     return false;
   }
 
+  const handlePlay = (row, col) => {
+    return function(event) {
+      playRound(row, col);
+    };
+  } 
+
   const playRound = (row, col) => {
     let isValidMove = false;
 
-    console.log(`${getActivePlayer().name} is making their move...`);
+    // console.log(`${getActivePlayer().name} is making their move...`);
 
     isValidMove = grid.makeMove(row, col, getActivePlayer().mark);
 
     if(!isValidMove) {
-      console.log('Invalid move. Try again')
+      alert('Invalid move. Try again');
     } else {
-      if (checkWin(row, col) === true) {
-        winnerMessage.innerText = `${getActivePlayer().name} won the game!`;
+      if (checkWin(row, col)) {
+        alert(`${getActivePlayer().name} won the game!`);
+        isWon = true;
         grid.printGrid();
         return;
       } 
@@ -157,6 +190,26 @@ function GameController(
     }
   };
 
+  function createClickHandler(row, col) {
+    return function(event) {
+      // Call the original function with the parameters
+      handlePlay(row, col);
+    };
+  }
+  
+
+  const handlers = new Map();
+
+  const disableGame = () => {
+    gameTiles.forEach((tile) => {
+      const handler = handlers.get(tile);
+      if (handler) {
+        tile.removeEventListener('click', handler);
+        handlers.delete(tile);
+      }
+    });
+  }
+
   printNextTurn();
 
   return { playRound, getActivePlayer };
@@ -164,6 +217,28 @@ function GameController(
 
 const game = GameController();
 
-const p = (row, col) => {
-  game.playRound(row,col);
+const handlePlay = (row, col) => {
+  return function(event) {
+    game.playRound(row, col);
+  }
+}
+
+if (!isStarted) {
+  gameTiles.forEach((tile) => {
+    const computedStyle = window.getComputedStyle(tile);
+    const tileRow = computedStyle.gridRow - 1;
+    const tileColumn = computedStyle.gridColumn - 1;
+    tile.addEventListener('click', handlePlay(tileRow, tileColumn));
+  });
+
+  isStarted = true;
+} else if (isWon) {
+  gameTiles.forEach((tile) => {
+    const computedStyle = window.getComputedStyle(tile);
+    const tileRow = computedStyle.gridRow - 1;
+    const tileColumn = computedStyle.gridColumn - 1;
+    
+    const handler = createClickHandler(tileRow, tileColumn);
+    tile.addEventListener('click', handlePlay(tileRow, tileColumn));
+  });
 }

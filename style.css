@@ -1,0 +1,59 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#game-board {
+  height: 60%;
+  width: 30%;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  margin: 3vh auto 0;
+}
+
+.left-col {
+  grid-column: 1;
+}
+
+.middle-col {
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  grid-column: 2;
+}
+
+.right-col {
+  grid-column: 3;
+}
+
+.top-row {
+  grid-row: 1;
+}
+
+.middle-row {
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  grid-row: 2;
+}
+
+.bottom-row {
+  grid-row: 3;
+}
+
+.tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tile:hover {
+  cursor: pointer;
+}
+
+.mark {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  transform: scale(3);
+}
