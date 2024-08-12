@@ -10,6 +10,7 @@ function GameGrid () {
   const getGrid = () => grid;
 
   const makeMove = (row, col, player) => {
+    console.log(row, col);
     const square = grid[row][col];
 
     if (square.getMark() !== 0) return false;
@@ -24,8 +25,8 @@ function GameGrid () {
     
     gameTiles.forEach((tile) => {
       const computedStyle = window.getComputedStyle(tile);
-      const tileRow = computedStyle.gridRow - 1;
-      const tileColumn = computedStyle.gridColumn - 1;
+      const tileRow = parseInt(computedStyle.gridRow) - 1;
+      const tileColumn = parseInt(computedStyle.gridColumn) - 1;
       
       const tileMark = gridWithSquareMarks[tileRow][tileColumn];
 
@@ -41,34 +42,34 @@ function GameGrid () {
 
   const checkSurroundingValues = (row, col) => {
     const directions  = [
-      {name: 'above', orientation: 'vertical', row: -1, col: 0}, 
-      {name: 'below', orientation: 'vertical', row: 1, col: 0},
-      {name: 'left', orientation: 'horizontal', row: 0, col: -1},
-      {name: 'right', orientation: 'horizontal', row: 0, col: 1},
-      {name: 'top-left', orientation: 'downwards-diagonal', row: -1, col: -1},
-      {name: 'top-right', orientation: 'upwards-diagonal', row: -1, col: 1},
-      {name: 'bottom-left', orientation: 'upwards-diagonal', row: 1, col: -1},
-      {name: 'bottom-right', orientation: 'downwards-diagonal', row: 1, col: 1}
+      {direction: 'vertical', row: -1, col: 0}, 
+      {direction: 'vertical', row: 1, col: 0},
+      {direction: 'horizontal', row: 0, col: -1},
+      {direction: 'horizontal', row: 0, col: 1},
+      {direction: 'downwards-diagonal', row: -1, col: -1},
+      {direction: 'downwards-diagonal', row: 1, col: 1},
+      {direction: 'upwards-diagonal', row: -1, col: 1},
+      {direction: 'upwards-diagonal', row: 1, col: -1}
     ]
 
     const values = {
       mark: grid[row][col].getMark(),
-      directions: {}
+      directions: []
     };
 
-    for (const direction of directions) {
-      const { name, orientation, row: r, col: c } = direction;
+    for (const dir of directions) {
+      const { direction, row: r, col: c } = dir;
       let newRow = row + r;
       let newCol = col + c;
-      values.directions[name] = [];
 
       while (newRow >= 0 && newRow < 3 && newCol >= 0 && newCol < 3) {
-        values.directions[name].push({orientationClass: orientation, value: grid[newRow][newCol].getMark()});
+        values.directions.push( { direction, value: grid[newRow][newCol].getMark() });
         newRow += r;
         newCol += c;
       }
     }
     
+    console.log(values);
     return values;
   }
 
@@ -97,39 +98,26 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
 
   const printNextTurn = () => {
     grid.printGrid();
-    if (isFull) {
-      alert('It\'s a tie');
-      disableGame();
-      return;
-    }
   };
 
   const checkWin = (row, col) => {
     const gridObject = grid.checkSurroundingValues(row, col);
-    const currentMark = gridObject.mark;
+    const mark = gridObject.mark;
     const directions = gridObject.directions;
-    const matchingSquares = [];
+    const isTruthy = directions.every(({ value }) => Boolean(value));
 
-    for (const direction in directions) {
-      const subArray = directions[direction];
-      for (let i = 0; i < 2; i++) {
-        if(!subArray[i]) {
-          continue;
-        } else if (subArray[i].value === currentMark) {
-          matchingSquares.push(subArray[i]);
-        }
-      }  
-    } 
+    const filteredDirections = directions.filter((obj) => obj.value === mark).map((el) => el.direction);
 
-    for (let i = 0; i < matchingSquares.length; i++) {
-      for (let j = i + 1; j < matchingSquares.length; j++) {
-        if(matchingSquares[i].orientationClass === matchingSquares[j].orientationClass) {
-          return true;
-        }
-      }
-    } 
-    
-    return false;
+    if (filteredDirections.some((value, index) => filteredDirections.indexOf(value) !== filteredDirections.lastIndexOf(value))) {
+      return true;
+    } else if (isTruthy) {
+      alert('It\'s a tie :(');
+      disableGame();
+      grid.printGrid();
+      return false;
+    } else {
+      return false;
+    }
   }
 
   const playRound = (row, col) => {
@@ -153,9 +141,9 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
   };
   
   const handleClick = (event) => {
-    const computedStyle = window.getComputedStyle(event.target);
-    const tileRow = computedStyle.gridRow - 1;
-    const tileColumn = computedStyle.gridColumn - 1;
+    const computedStyle = window.getComputedStyle(event.currentTarget);
+    const tileRow = parseInt(computedStyle.gridRow) - 1;
+    const tileColumn = parseInt(computedStyle.gridColumn) - 1;
     return game.playRound(tileRow, tileColumn);
   }
 
