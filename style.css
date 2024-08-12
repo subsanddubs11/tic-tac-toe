@@ -43,9 +43,12 @@ html, body {
 
 #heading {
   text-align: center;
-  margin: 4vh;
+  margin-top: 4vh;
 }
 
+#heading h1 {
+  margin-bottom: 3vh;
+}
 .tile {
   display: flex;
   justify-content: center;
@@ -66,8 +69,7 @@ html, body {
 }
 
 #reset-btn {
-  display: block;
-  margin: auto;
+  margin: 2vh auto;
 }
 
 @media screen and (max-width: 420px) {
