@@ -115,7 +115,6 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
     const gridObject = grid.checkSurroundingValues(row, col);
     const mark = gridObject.mark;
     const directions = gridObject.directions;
-    const isTruthy = directions.every(({ value }) => Boolean(value));
 
     const filteredDirections = directions.filter((obj) => obj.value === mark).map((el) => el.direction);
 
