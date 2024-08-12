@@ -2,8 +2,8 @@ const winnerMessage = document.getElementById('winner-message');
 const gameBoard = document.getElementById('game-board');
 const gameTiles = document.querySelectorAll('.tile');
 
-let isStarted = false;
 let isWon = false;
+let isFull = false;
 
 function GameGrid () {
   const rows = 3;
@@ -47,8 +47,7 @@ function GameGrid () {
       }
     })
 
-    const isFull = gridWithSquareMarks.every((row) => row.every((square) => Boolean(square)));
-    return isFull ? true : false;
+    isFull = gridWithSquareMarks.every((row) => row.every((square) => Boolean(square)));
   }
 
   const checkSurroundingValues = (row, col) => {
@@ -125,12 +124,15 @@ function GameController(
   const getActivePlayer = () => activePlayer;
 
   const printNextTurn = () => {
-    let isFull = grid.printGrid();
-    if(isFull) {
-      alert('It\'s a tie :(');
-      disableGame();
+    if (isWon) {
       return;
-    };
+    }
+
+    grid.printGrid();
+    if (isFull) {
+      alert('It\'s a tie');
+      return;
+    }
     // console.log(`${getActivePlayer().name}'s turn`);
   };
 
@@ -162,13 +164,12 @@ function GameController(
     return false;
   }
 
-  const handlePlay = (row, col) => {
-    return function(event) {
-      playRound(row, col);
-    };
-  } 
-
   const playRound = (row, col) => {
+
+    if (isWon || isFull) {
+      return;
+    }
+
     let isValidMove = false;
 
     // console.log(`${getActivePlayer().name} is making their move...`);
@@ -190,55 +191,27 @@ function GameController(
     }
   };
 
-  function createClickHandler(row, col) {
+
+  const handlePlay = (row, col) => {
     return function(event) {
-      // Call the original function with the parameters
-      handlePlay(row, col);
-    };
+      game.playRound(row, col);
+    }
   }
   
+  
+  const startGame = () => {
+      gameTiles.forEach((tile) => {
+        const computedStyle = window.getComputedStyle(tile);
+        const tileRow = computedStyle.gridRow - 1;
+        const tileColumn = computedStyle.gridColumn - 1;
+        tile.addEventListener('click', handlePlay(tileRow, tileColumn));
+      });
+    }
 
-  const handlers = new Map();
-
-  const disableGame = () => {
-    gameTiles.forEach((tile) => {
-      const handler = handlers.get(tile);
-      if (handler) {
-        tile.removeEventListener('click', handler);
-        handlers.delete(tile);
-      }
-    });
-  }
-
+  startGame();
   printNextTurn();
 
   return { playRound, getActivePlayer };
 }
 
 const game = GameController();
-
-const handlePlay = (row, col) => {
-  return function(event) {
-    game.playRound(row, col);
-  }
-}
-
-if (!isStarted) {
-  gameTiles.forEach((tile) => {
-    const computedStyle = window.getComputedStyle(tile);
-    const tileRow = computedStyle.gridRow - 1;
-    const tileColumn = computedStyle.gridColumn - 1;
-    tile.addEventListener('click', handlePlay(tileRow, tileColumn));
-  });
-
-  isStarted = true;
-} else if (isWon) {
-  gameTiles.forEach((tile) => {
-    const computedStyle = window.getComputedStyle(tile);
-    const tileRow = computedStyle.gridRow - 1;
-    const tileColumn = computedStyle.gridColumn - 1;
-    
-    const handler = createClickHandler(tileRow, tileColumn);
-    tile.addEventListener('click', handlePlay(tileRow, tileColumn));
-  });
-}
