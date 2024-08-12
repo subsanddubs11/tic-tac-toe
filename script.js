@@ -71,7 +71,7 @@ function GameGrid () {
         tile.innerHTML = '';
       })
       grid.forEach((row) => row.forEach((square) => square.addMark(0)));
-      
+      printGrid();
     }
 
     resetBtn.addEventListener('click', reset);
@@ -117,7 +117,7 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
     if (filteredDirections.some((value, index) => filteredDirections.indexOf(value) !== filteredDirections.lastIndexOf(value))) {
       return true;
     } else if (isTruthy) {
-      alert('It\'s a tie :(');
+      winnerMessage.innerHTML = `<h2>It\'s a tie :(</h2>`;
       disableGame();
       grid.printGrid();
       return false;
@@ -135,7 +135,7 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
       alert('Invalid move. Try again');
     } else {
       if (checkWin(row, col)) {
-        alert(`${getActivePlayer().name} won the game!`);
+        winnerMessage.innerHTML = `<h2>${getActivePlayer().name} won the game!</h2>`
         disableGame();
         grid.printGrid();
         return;
@@ -167,6 +167,8 @@ function GameController(playerOneName = 'Player One', playerTwoName = 'Player Tw
 
   const reset = () => {
     startGame();
+    winnerMessage.innerHTML = '';
+    activePlayer = players[0];
   }
 
   resetBtn.addEventListener('click', reset);

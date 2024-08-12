@@ -1,6 +1,7 @@
 html, body {
   height: 100%;
   margin: 0;
+  text-align: center;
 }
 
 #game-board {
@@ -62,6 +63,11 @@ html, body {
   align-items: center;
   font-size: 2rem;
   transform: scale(3);
+}
+
+#reset-btn {
+  display: block;
+  margin: auto;
 }
 
 @media screen and (max-width: 420px) {
